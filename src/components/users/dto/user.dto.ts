@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 
 export class UserDto {
   @Length(3, 100)
@@ -10,10 +10,10 @@ export class UserDto {
   @IsString()
   password: string;
 
+  @IsOptional()
   @Length(3, 100)
-  @IsNotEmpty()
   @IsString()
-  description: string;
+  description?: string;
 
   userToken?: string;
   isAdmin?: boolean;

@@ -6,20 +6,36 @@ import { CommentsModel } from './comments.model';
 import { randomUUID } from 'crypto';
 import { Responses } from '../../bll/helpers/Responses';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { UserModel } from '../users/user.model';
 
 @Injectable()
 class CommentsService {
   constructor(
     @InjectModel(CommentsModel)
     private commentsRepository: typeof CommentsModel,
+
+    @InjectModel(UserModel)
+    private userRepository: typeof UserModel,
   ) {}
   public async updateComment(dto: CommentUpdateDto) {
     try {
-      const updatedComment = await this.commentsRepository.update(
+      const comment = await this.commentsRepository.findOne({
+        where: { comment_hash: dto.comment_hash },
+      });
+      const user = await this.userRepository.findOne({
+        where: { userToken: dto.userToken },
+      });
+      if (!user || comment.userToken !== dto.userToken) {
+        return Responses.statusAny(
+          StatusCodes.FORBIDDEN,
+          ReasonPhrases.FORBIDDEN,
+        );
+      }
+      await this.commentsRepository.update(
         { text: dto.text },
         { where: { comment_hash: dto.comment_hash } },
       );
-      return Responses.statusOkWithData(updatedComment);
+      return Responses.statusOkWithoutData();
     } catch (ex) {
       return Responses.statusAnyWithMessage(
         StatusCodes.CONFLICT,
@@ -61,10 +77,14 @@ class CommentsService {
 
   public async addComment(dto: CommentDto) {
     try {
+      const user = await this.userRepository.findOne({
+        where: { userToken: dto.userToken },
+      });
       const comment_hash = `comment_${Date.now()}${randomUUID()}`;
       const comment = {
         ...dto,
         comment_hash,
+        userName: user.userName,
       };
       const newComment = await this.commentsRepository.create(comment);
       return Responses.statusOkWithData(newComment);

@@ -18,7 +18,8 @@ class UserService {
   public async registerUser(dto: UserDto) {
     try {
       // this.userRepository.sequelize.query()
-      return await this.userRepository.create({ ...dto });
+      const user = await this.userRepository.create({ ...dto });
+      return Responses.statusOkWithData(user);
     } catch (ex) {
       console.log('Register user ex', ex);
       return Responses.statusAny(
@@ -40,7 +41,7 @@ class UserService {
       if (user && isValidPass) {
         const plainUser = classToPlain<UserModel>(user).dataValues;
         delete plainUser.password;
-        return plainUser;
+        return Responses.statusOkWithData(plainUser);
       }
       return Responses.statusAny(
         StatusCodes.FORBIDDEN,

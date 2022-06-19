@@ -5,11 +5,7 @@ export class CommentDto {
   @IsString()
   userToken: string;
 
-  @IsNotEmpty()
-  @IsString()
-  userName: string;
-
-  @Length(3, 100)
+  @Length(3, 300)
   @IsNotEmpty()
   @IsString()
   text: string;
@@ -20,7 +16,7 @@ export class CommentDto {
 }
 
 export class CommentUpdateDto {
-  @Length(3, 100)
+  @Length(3, 300)
   @IsNotEmpty()
   @IsString()
   text: string;
@@ -29,4 +25,9 @@ export class CommentUpdateDto {
   @IsString()
   @IsNotEmpty()
   comment_hash: string;
+
+  @Length(3, 100)
+  @IsString()
+  @IsNotEmpty()
+  userToken: string;
 }
